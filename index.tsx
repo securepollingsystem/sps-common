@@ -2,7 +2,7 @@ import { ed25519 } from '@noble/curves/ed25519';
 import { bls12_381 } from '@noble/curves/bls12-381';
 import { randomBytes } from '@noble/hashes/utils';
 
-export function genKey(setPrivateKey) { // Generate a new Ed25517 private key using noble-curves
+export function genKey(setPrivateKey: (key: string) => void) { // Generate a new Ed25517 private key using noble-curves
   const privateKeyBytes = ed25519.utils.randomSecretKey();
   const publicKeyBytes = ed25519.getPublicKey(privateKeyBytes);
 
@@ -15,7 +15,7 @@ export function genKey(setPrivateKey) { // Generate a new Ed25517 private key us
   console.log("privateKey saved to localStorage:", privateKeyHex);
 }
 
-export function registerPublicKey(privateKey, setRegistrationToken) {
+export function registerPublicKey(privateKey: string, setRegistrationToken: (token: string) => void) {
   if (!privateKey || privateKey == "nothing found in local storage") {
     alert('You need to generate a key first!');
     return;
@@ -113,9 +113,9 @@ export function getSignedScreedObject(loadedScreed, privateKey) {
     const signature = bytesToBase64URL(signatureBytes);
 
     return { // Create the signed screed object
-      screed,
+      screed: screedString,
       signature,
-      publicKey
+      publicKey: publicKeyHex
     };
   } catch (error) {
     alert('Error creating signed screed: ' + error.message);
