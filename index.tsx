@@ -143,7 +143,16 @@ export function getPublicKeyForDisplay(privateKey) { // Helper function to get p
 
 // Hard-coded BLS keypair for the registrar
 // FIXME this should be on registrar server
-export const registrarPrivateKey = BigInt("0x2ed099c28c00366fa36668b3ae09ab82e927bc1e5b6c8d0cf4a101d9407ff4a7");
+function hexToUint8Array(hex) {
+  const bytes = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < hex.length; i += 2) {
+    bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
+  }
+  return bytes;
+}
+
+const registrarPrivateKeyHex  = '2ed099c28c00366fa36668b3ae09ab82e927bc1e5b6c8d0cf4a101d9407ff4a7';
+export const registrarPrivateKey = hexToUint8Array(registrarPrivateKeyHex);
 // Pubkey in G2
 export const registrarPublicKey = bls12_381.shortSignatures.getPublicKey(registrarPrivateKey);
 
