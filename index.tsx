@@ -2,7 +2,7 @@ import { ed25519 } from '@noble/curves/ed25519';
 import { bls12_381 } from '@noble/curves/bls12-381';
 import { randomBytes } from '@noble/hashes/utils';
 
-export function genKey(setPrivateKey: (key: string) => void) { // Generate a new Ed25517 private key using noble-curves
+export function genKey(setPrivateKey: (key: string) => void) { // Generate a new ed25519 private key
   const privateKeyBytes = ed25519.utils.randomSecretKey();
   const publicKeyBytes = ed25519.getPublicKey(privateKeyBytes);
 
@@ -12,7 +12,6 @@ export function genKey(setPrivateKey: (key: string) => void) { // Generate a new
 
   setPrivateKey(privateKeyHex); // sets the private key hex string in the state
   localStorage.setItem("myPrivateKeyHex", privateKeyHex); // saves the private key
-  console.log("privateKey saved to localStorage:", privateKeyHex);
 }
 
 export function registerPublicKey(privateKey: string, setRegistrationToken: (token: string) => void) {
@@ -72,7 +71,7 @@ export function registerPublicKey(privateKey: string, setRegistrationToken: (tok
   }
 }
 
-export const hexToBytes = (hex) => { // Helper functions to convert between hex, base64, and Uint8Array
+export const hexToBytes = (hex: string) => { // Helper functions to convert between hex, base64, and Uint8Array
   const bytes = new Uint8Array(hex.length / 2);
   for (let i = 0; i < hex.length; i += 2) {
     bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
@@ -80,13 +79,13 @@ export const hexToBytes = (hex) => { // Helper functions to convert between hex,
   return bytes;
 };
 
-export const bytesToHex = (bytes) => {
+export const bytesToHex = (bytes: Uint8Array) => {
   return Array.from(bytes)
     .map(byte => byte.toString(16).padStart(2, '0'))
     .join('');
 };
 
-export const bytesToBase64URL = (bytes) => {
+export const bytesToBase64URL = (bytes: Uint8Array) => {
   const base64 = btoa(String.fromCharCode(...bytes)); // Replace + with -, / with _, and remove padding
   return base64
     .replace(/\+/g, '-')
@@ -94,7 +93,7 @@ export const bytesToBase64URL = (bytes) => {
     .replace(/=+$/, '');
 };
 
-export function getSignedScreedObject(loadedScreed, privateKey) {
+export function getSignedScreedObject(loadedScreed: object, privateKey: string) {
   if (!privateKey || privateKey == "nothing found in local storage") {
     alert('You can\'t upload your screed without an encryption key!');
     return null;
@@ -123,7 +122,7 @@ export function getSignedScreedObject(loadedScreed, privateKey) {
   }
 }
 
-export function getPublicKeyForDisplay(privateKey) { // Helper function to get public key for display
+export function getPublicKeyForDisplay(privateKey: string) { // Helper function to get public key for display
   if (!privateKey || privateKey == "nothing found in local storage") {
     return "";
   }
@@ -143,7 +142,7 @@ export function getPublicKeyForDisplay(privateKey) { // Helper function to get p
 
 // Hard-coded BLS keypair for the registrar
 // FIXME this should be on registrar server
-function hexToUint8Array(hex) {
+function hexToUint8Array(hex: string) {
   const bytes = new Uint8Array(hex.length / 2);
   for (let i = 0; i < hex.length; i += 2) {
     bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
@@ -155,4 +154,3 @@ const registrarPrivateKeyHex  = '2ed099c28c00366fa36668b3ae09ab82e927bc1e5b6c8d0
 export const registrarPrivateKey = hexToUint8Array(registrarPrivateKeyHex);
 // Pubkey in G2
 export const registrarPublicKey = bls12_381.shortSignatures.getPublicKey(registrarPrivateKey);
-
