@@ -2,6 +2,24 @@ import { ed25519 } from '@noble/curves/ed25519';
 import { bls12_381 } from '@noble/curves/bls12-381';
 import { randomBytes } from '@noble/hashes/utils';
 
+export async function verifyScreedSignature({ screed, signature, publicKey }) {
+  try {
+    const messageBytes = new TextEncoder().encode(screed);
+    let signatureBytes;
+    try {
+      signatureBytes = base64URLToBytes(signature);
+    } catch (e) {
+      console.error('Signature base64URL decode failed:', e);
+      return false;
+    }
+    const publicKeyBytes = hexToBytes(publicKey);
+    return ed25519.verify(signatureBytes, messageBytes, publicKeyBytes);
+  } catch (e) {
+    console.error('Signature verification failed:', e);
+    return false;
+  }
+}
+
 export function genKey(setPrivateKey: (key: string) => void) { // Generate a new ed25519 private key
   const privateKeyBytes = ed25519.utils.randomSecretKey();
   const publicKeyBytes = ed25519.getPublicKey(privateKeyBytes);
@@ -83,6 +101,10 @@ export const bytesToHex = (bytes: Uint8Array) => {
   return Array.from(bytes)
     .map(byte => byte.toString(16).padStart(2, '0'))
     .join('');
+};
+
+export const base64URLToBytes = (base64URL: string) => {
+  return Buffer.from(base64URL, 'base64url');
 };
 
 export const bytesToBase64URL = (bytes: Uint8Array) => {
